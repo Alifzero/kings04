@@ -1,0 +1,9 @@
+<odoo>
+        <report id="king_invoice_report_id'"
+            string="King's Invoice"
+            model="account.move"
+            report_type="qweb-pdf"
+            name="custom_invoice.king_invoice_report"
+            file="custom_invoice.king_invoice_report"/>
+
+</odoo>

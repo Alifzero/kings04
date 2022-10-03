@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <template id="king_invoice_report">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="o">
+                    <t t-call="web.external_layout">
+                        <div style="text-align:left; margin-top:-50px;">
+                            <h2>
+                                Invoice
+                                <t t-raw="o.payment_reference"/>
+
+                            </h2>
+
+                        </div>
+
+                        <div class="row">
+                            <table class="col-sm-12"
+                                   style="color: black; text-align: left; ">
+                                <thead>
+                                    <tr>
+                                        <td>Invoice Date:</td>
+
+                                        <td>Due Date:</td>
+
+                                        <td>Source:</td>
+
+                                        <td>Customer Code:</td>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <t t-if="o.invoice_date"
+                                               t-esc="o.invoice_date"/>
+                                        </td>
+                                        <td>
+                                            <t t-if="o.invoice_date_due"
+                                               t-esc="o.invoice_date_due"/>
+                                        </td>
+                                        <td>
+                                            Job order of
+                                            <span t-field="o.order_id.container_no"/>
+                                        </td>
+                                        <td>
+                                            <t t-raw="o.partner_id.name"/>
+
+                                        </td>
+                                    </tr>
+
+                                </tbody>
+
+                            </table>
+                        </div>
+
+                        <div style="padding-top:30px"></div>
+                        <div class="row">
+                            <table class=" col-sm-12 table table-striped">
+                                <thead
+                                        style="color: black;font-size:16px; text-align: center; border-top:1px solid black; margin-top:50px;">
+
+                                    <th style="width:25%; text-align:left; ">
+                                        Description
+                                    </th>
+                                    <th style="width:15%; text-align:left; ">
+                                        CTN Qty
+                                    </th>
+                                    <th style="width:15%; text-align:left; ">
+                                        Weight
+                                    </th>
+                                    <th style="width:15%; text-align:left; ">
+                                        CBM
+                                    </th>
+                                    <th style="width:15%; text-align:left; ">
+                                        QTY/CTN
+                                    </th>
+                                    <th style="width:15%; text-align:left; ">
+                                        Amount
+                                    </th>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="o.invoice_line_ids.ids" t-as="i">
+                                        <t t-foreach="request.env['account.move.line'].search([('id', '=', i)])"
+                                           t-as="line">
+                                            <tr>
+                                                <td style="text-align:left; ">
+                                                    <t t-raw="line.name"/>
+                                                </td>
+                                                <td style="text-align:left; ">
+                                                    <t t-raw="line.quantity"/>
+                                                </td>
+                                                <td style="text-align:left; ">
+                                                    <t t-raw="line.weight"/>
+                                                </td>
+                                                <td style="text-align:left; ">
+                                                    <t t-raw="line.cbm"/>
+                                                </td>
+                                                <td style="text-align:left; ">
+                                                    <t t-raw="line.qty_per_ctn"/>
+                                                </td>
+                                                <td style="text-align:left; ">
+                                                    <t t-raw="line.price_subtotal"/>
+                                                </td>
+                                            </tr>
+                                        </t>
+                                    </t>
+
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="clearfix">
+                            <div id="total" class="row">
+                                <div t-attf-class="#{'col-6' if report_type != 'html' else 'col-sm-7 col-md-6'} ml-auto">
+                                    <table class="table table-sm" style="page-break-inside: avoid;">
+                                        <tr class="border-black o_subtotal" style="">
+                                            <td>
+                                                <strong>Subtotal</strong>
+                                            </td>
+                                            <td class="text-right">
+                                                <span t-field="o.amount_untaxed"/>
+                                            </td>
+                                        </tr>
+                                        <t t-foreach="o.amount_by_group" t-as="amount_by_group">
+                                            <tr style="">
+                                                <t t-if="len(o.line_ids.filtered(lambda line: line.tax_line_id)) in [0, 1] and float_compare(o.amount_untaxed, amount_by_group[2], precision_rounding=o.currency_id.rounding) == 0">
+                                                    <td>
+                                                        <span class="text-nowrap" t-esc="amount_by_group[0]"/>
+                                                    </td>
+                                                    <td class="text-right o_price_total">
+                                                        <span class="text-nowrap" t-esc="amount_by_group[3]"/>
+                                                    </td>
+                                                </t>
+                                                <t t-else="">
+                                                    <td>
+                                                        <span t-esc="amount_by_group[0]"/>
+                                                        <span class="text-nowrap">on
+                                                            <t t-esc="amount_by_group[4]"/>
+                                                        </span>
+                                                    </td>
+                                                    <td class="text-right o_price_total">
+                                                        <span class="text-nowrap" t-esc="amount_by_group[3]"/>
+                                                    </td>
+                                                </t>
+                                            </tr>
+                                        </t>
+                                        <tr class="border-black o_total">
+                                            <td>
+                                                <strong>Total</strong>
+                                            </td>
+                                            <td class="text-right">
+                                                <span class="text-nowrap" t-field="o.amount_total"/>
+                                            </td>
+                                        </tr>
+                                        <t t-if="print_with_payments">
+                                            <t t-if="o.payment_state != 'invoicing_legacy'">
+                                                <t t-set="payments_vals"
+                                                   t-value="o.sudo()._get_reconciled_info_JSON_values()"/>
+                                                <t t-foreach="payments_vals" t-as="payment_vals">
+                                                    <tr>
+                                                        <td>
+                                                            <i class="oe_form_field text-right oe_payment_label">Paid on
+                                                                <t t-esc="payment_vals['date']"
+                                                                   t-options='{"widget": "date"}'/>
+                                                            </i>
+                                                        </td>
+                                                        <td class="text-right">
+                                                            <span t-esc="payment_vals['amount']"
+                                                                  t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                                                        </td>
+                                                    </tr>
+                                                </t>
+                                                <t t-if="len(payments_vals) > 0">
+                                                    <tr class="border-black">
+                                                        <td>
+                                                            <strong>Amount Due</strong>
+                                                        </td>
+                                                        <td class="text-right">
+                                                            <span t-field="o.amount_residual"/>
+                                                        </td>
+                                                    </tr>
+                                                </t>
+                                            </t>
+                                        </t>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <p t-if="o.move_type in ('out_invoice', 'in_refund') and o.payment_reference"
+                           name="payment_communication">
+                            Please use the following communication for your payment :
+                            <b>
+                                <span t-field="o.payment_reference"/>
+                            </b>
+                        </p>
+
+                    </t>
+                </t>
+            </t>
+        </template>
+        <template id="external_layout_header_inherit_mew"
+                  inherit_id="web.external_layout_standard">
+            <xpath expr="//div[1]" position="replace">
+                <div class="header" t-attr-style="report_header_style">
+
+                    <div class="row">
+                    </div>
+                </div>
+            </xpath>
+        </template>
+    </data>
+</odoo>

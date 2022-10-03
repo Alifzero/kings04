@@ -1,0 +1,633 @@
+<odoo>
+    <data>
+        <record id="view_job_order_tree" model="ir.ui.view">
+            <field name="name">job.order.tree</field>
+            <field name="model">job.order</field>
+            <field name="arch" type="xml">
+                <tree>
+					<field name="type" invisible="1"/>
+                    <field name="container_no" string="Container#"/>
+                    <field name="cmb"/>
+					<field name="total_cmb"/>
+                    <field name="total_no_ctn"/>
+                    <field name="total_weight"/>
+                    <field name="state"/>
+                </tree>
+            </field>
+        </record>
+        <record id="view_job_order_form" model="ir.ui.view">
+            <field name="name">job.order.form</field>
+            <field name="model">job.order</field>
+            <field name="arch" type="xml">
+                <form>
+			<header>
+				<button name="Confirmed" type="object" attrs="{'invisible':[('state','!=','Draft')]}" string="Confirm"  groups="base.group_user" class="oe_highlight"/>
+				<button name="SetToDraft" type="object" attrs="{'invisible':[('state','not in',('Confirmed','Invoiced'))]}" string="Set to Draft"  groups="base.group_user" class="oe_highlight"/>
+				<button name="CreateInv" type="object" attrs="{'invisible':[('state','!=','Confirmed')]}" string="Create Invoice"  groups="base.group_user" class="oe_highlight"/>
+                <field name="state" widget="statusbar" statusbar_visible="Draft,Confirmed,Invoiced"/>
+			</header>
+				
+                    <sheet>
+						<!--<div class="o_field_widget o_stat_info">
+			                <span class="o_stat_value">
+			                    <field name="invoice_count" class="mr4" widget="statinfo" nolabel="1"/>
+			                </span>
+			                <span class="o_stat_text">Order(s)</span>
+			            </div>-->
+	                    <group>
+							<field name="type" invisible="1"/>
+		                    <group>
+								<field name="container_no" attrs="{'readonly':[('state','!=','Draft')]}"/>
+<!--		                    	<field name="total_ctn" attrs="{'readonly':[('state','!=','Draft')]}"/>
+							<field name="total_weight" attrs="{'readonly':[('state','!=','Draft')]}"/>-->	
+		                    </group>
+		                    <group>
+<!--								<field name="cmb" attrs="{'readonly':[('state','!=','Draft')]}"/>
+								<field name="total_cmb" invisible="1"/>
+								<field name="total_no_ctn" invisible="1"/> -->
+	                        <field name="shipment_no" attrs="{'readonly':[('state','!=','Draft')]}"/>
+		                    </group>
+		                </group>
+		                <group name="lines" string="Order Lines">
+		                    <field name="line_ids" attrs="{'readonly':[('state','!=','Draft')]}" nolabel="1">
+		                        <tree>
+		                            <field name="partner_id"/>
+		<!--                            <field name="description"/>-->
+		                            <field name="mark"/>
+									<field name="s_ship_mark" />
+  		                            <field name="total_qty" sum="Total QTY/CTN" readonly="0"/>
+		                            <field name="no_of_ctn" sum="Total CTN" readonly="0"/>
+		                            <field name="cbm" sum="Total CBM" readonly="0"/>
+									<field name="total_weight" sum="Total Weight" readonly="0"/>
+		                        </tree>
+		                        <form>
+		                            <group>
+		                                <group>
+		                            <field name="partner_id" required="1"/>
+		                            <field name="total_qty" required="1"/>
+									<field name="no_of_ctn" required="1"/>
+									<field name="total_weight"/>
+		                                </group>
+		                                <group>
+		                            <field name="mark"/>
+									<field name="s_ship_mark" />
+		                            <field name="cbm" force_save="1"/>
+									
+		
+		                                </group>
+		                            </group>
+		                            <group>
+		                                <field name="detail_ids" nolabel="1">
+		                                    <tree editable="bottom">
+												<field name="partner_id"  invisible="1"/>
+												<field name="product_ids" invisible="1"/>
+		                                        <field name="product_id"/>
+		                                        
+												<field name="lot_id"/>
+												<field name="stock_receipt_date"/>
+		                                        <field name="on_hand_qty"/>
+		                                        <field name="article"/>
+		                                        <field name="no_of_ctn"/>
+		                                        <field name="qty_per_ctn"/>
+												<field name="uom_id"/>
+		                                        <field name="cbm"/>
+		                                        <field name="weight"/>
+												<field name="price_based"/>
+		                                        <field name="price"/>
+												<field name="sub_total"/>
+		                                    </tree>
+											<form>
+												<group col='4' colspan='4'>
+													<field name="partner_id"/>
+													<field name="product_ids"  invisible="1"/>
+			                                        <field name="product_id"/>
+			                                        <field name="lot_id"/>
+			                                        <field name="on_hand_qty"/>
+			                                        <field name="article"/>
+			                                        <field name="no_of_ctn"/>
+			                                        <field name="qty_per_ctn"/>
+			
+													<field name="uom_id"/>
+			                                        <field name="cbm"/>
+			                                        <field name="weight"/>
+													<field name="price_based"/>
+			                                        <field name="price"/>
+													<field name="sub_total"/>
+												</group>
+		                                    </form>
+		                                </field>
+		                            </group>
+		                        </form>
+		                    </field>
+		                </group>
+					</sheet>
+                </form>
+            </field>
+        </record>
+		
+
+		 <record model="ir.actions.act_window" id="action_job_order">
+            <field name="name">Job Order</field>
+            <field name="res_model">job.order</field>
+<!--            <field name="view_mode">tree,form</field>
+-->			<field name="view_ids" eval="[(5, 0, 0), 
+			        (0, 0, {'view_mode': 'tree', 'view_id': ref('view_job_order_tree')}), 
+			        (0, 0, {'view_mode': 'form', 'view_id': ref('view_job_order_form')})]"/>
+			<field name="context">{'default_type':'Job Order'}</field>
+			<field name="domain">[('type','=','Job Order')]</field>
+        </record>
+		<!--<record id="view_act_object_tree" model="ir.actions.act_window.view">
+	        <field name="view_mode">tree</field>
+	        <field name="view_id" ref="view_job_order_tree" />
+	        <field name="act_window_id" ref="action_job_order" />
+	    </record>
+	    <record id="view_act_object_form" model="ir.actions.act_window.view">
+	        <field name="view_mode">form</field>
+	        <field name="view_id" ref="view_job_order_form" />
+	        <field name="act_window_id" ref="action_job_order" />
+	    </record>-->
+		
+		<record id="view_packing_list_tree" model="ir.ui.view">
+            <field name="name">packing.list.tree</field>
+            <field name="model">job.order</field>
+            <field name="arch" type="xml">
+                <tree>
+<!--					<field name="type" invisible="1"/>
+-->                    <field name="container_no" string="Container#"/>
+                    <field name="cmb"/>
+					<field name="total_cmb"/>
+                    <field name="total_no_ctn"/>
+                    <field name="total_weight"/>
+                    <field name="state"/>
+                </tree>
+            </field>
+        </record>
+        <record id="view_packing_list_form" model="ir.ui.view">
+            <field name="name">packing.list.form</field>
+            <field name="model">job.order</field>
+            <field name="arch" type="xml">
+                <form>
+			<header>
+				<button name="Confirmed" type="object" attrs="{'invisible':[('state','!=','Draft')]}" string="Confirm"  groups="base.group_user" class="oe_highlight"/>
+				<button name="SetToDraft" type="object" attrs="{'invisible':[('state','not in',('Confirmed','Invoiced'))]}" string="Set Of Draft"  groups="base.group_user" class="oe_highlight"/>
+<!--				<button name="CreateInv" type="object" attrs="{'invisible':[('state','!=','Confirmed')]}" string="Create Invoice"  groups="base.group_user" class="oe_highlight"/>
+-->                <field name="state" widget="statusbar" statusbar_visible="Draft,Confirmed,Receipt"/>
+			</header>
+
+                    <sheet>
+	                    <group>
+<!--							<field name="type" invisible="1"/>
+-->		                    <group>
+								<field name="container_no" attrs="{'readonly':[('state','!=','Draft')]}"/>
+		                    	<field name="total_ctn" attrs="{'readonly':[('state','!=','Draft')]}"/>
+								<field name="total_weight" attrs="{'readonly':[('state','!=','Draft')]}"/>
+		                    </group>
+		                    <group>
+								<field name="cmb" attrs="{'readonly':[('state','!=','Draft')]}"/>
+								<field name="total_cmb" invisible="1"/>
+								<field name="total_no_ctn" invisible="1"/>
+		                        <field name="shipment_no" attrs="{'readonly':[('state','!=','Draft')]}"/>
+		                    </group>
+		                </group>
+		                <group name="lines" string="Packing List Lines">
+		                    <field name="line_ids" attrs="{'readonly':[('state','!=','Draft')]}" nolabel="1">
+		                        <tree>
+		                            <field name="partner_id"/>
+		<!--                            <field name="description"/>-->
+		                            <field name="mark"/>
+									<field name="s_ship_mark" />
+  		                            <field name="total_qty" sum="Total QTY/CTN" readonly="0"/>
+		                            <field name="no_of_ctn" sum="Total CTN" readonly="0"/>
+		                            <field name="cbm" sum="Total CBM" readonly="0"/>
+		                        </tree>
+		                        <form>
+		                            <group>
+		                                <group>
+		                            <field name="partner_id" required="1"/>
+		                            <field name="total_qty" required="1"/>
+									<field name="no_of_ctn" required="1"/>
+		                                </group>
+		                                <group>
+		                            <field name="mark"/>
+									<field name="s_ship_mark" />
+		                            <field name="cbm" force_save="1"/>
+		
+		                                </group>
+		                            </group>
+		                            <group>
+		                                <field name="detail_ids" nolabel="1">
+		                                    <tree editable="bottom">
+												<field name="partner_id"  invisible="1"/>
+												<field name="product_ids" invisible="1"/>
+		                                        <field name="product_id"/>
+		                                        <field name="stock_receipt_date"/>
+												<field name="lot_id"/>
+		                                        <field name="on_hand_qty"/>
+		                                        <field name="article"/>
+		                                        <field name="no_of_ctn"/>
+		                                        <field name="qty_per_ctn"/>
+												<field name="uom_id"/>
+		                                        <field name="cbm"/>
+		                                        <field name="weight"/>
+												<field name="price_based"/>
+		                                        <field name="price"/>
+												<field name="sub_total"/>
+		                                    </tree>
+											<form>
+												<group col='4' colspan='4'>
+													<field name="partner_id"/>
+													<field name="product_ids"  invisible="1"/>
+			                                        <field name="product_id"/>
+			                                        <field name="lot_id"/>
+			                                        <field name="on_hand_qty"/>
+			                                        <field name="article"/>
+			                                        <field name="no_of_ctn"/>
+			                                        <field name="qty_per_ctn"/>
+			
+													<field name="uom_id"/>
+			                                        <field name="cbm"/>
+			                                        <field name="weight"/>
+													<field name="price_based"/>
+			                                        <field name="price"/>
+													<field name="sub_total"/>
+												</group>
+		                                    </form>
+		                                </field>
+		                            </group>
+		                        </form>
+		                    </field>
+		                </group>
+					</sheet>
+                </form>
+            </field>
+        </record>
+		
+
+<!--		 <record model="ir.actions.act_window" id="action_packing_list">
+            <field name="name">Packing List</field>
+            <field name="res_model">job.order</field>
+            <field name="view_mode">tree,form</field>
+			<field name="view_ids" eval="[(5, 0, 0), 
+			        (0, 0, {'view_mode': 'tree', 'view_id': ref('view_packing_list_tree')}), 
+			        (0, 0, {'view_mode': 'form', 'view_id': ref('view_packing_list_form')})]"/>
+			<field name="context">{'default_type':'Packing List'}</field>
+			<field name="domain">[('type','=','Packing List')]</field>
+        </record>-->
+<!--		<record id="view_act_packing_list_tree" model="ir.actions.act_window.view">
+	        <field name="view_mode">tree</field>
+	        <field name="view_id" ref="view_packing_list_tree" />
+	        <field name="act_window_id" ref="action_packing_list" />
+	    </record>
+	    <record id="view_act_packing_list_form" model="ir.actions.act_window.view">
+	        <field name="view_mode">form</field>
+	        <field name="view_id" ref="view_packing_list_form" />
+	        <field name="act_window_id" ref="action_packing_list" />
+	    </record>-->
+
+
+        <record id="view_account_move" model="ir.ui.view">
+            <field name="name">account.move.form</field>
+            <field name="model">account.move</field>
+            <field name="inherit_id" ref="account.view_move_form"/>
+            <field name="arch" type="xml">
+
+				<xpath expr="//field[@name='partner_id']" position="after">
+					<field name="ship_mark" string="P. Ship Mark"/>
+					<field name="s_ship_mark" string="S. Ship Mark"/>
+				</xpath>
+                <xpath expr="//field[@name='journal_id']" position="after">
+                    <field name="order_id" string="Job Order"/>
+                </xpath>
+                <xpath expr="//field[@name='invoice_line_ids']/tree/field[@name='analytic_tag_ids']" position="after">
+                    <field name="detail_id" string="Job Detail" invisible="1"/>
+                    <field name="article" />
+					<field name="qty_per_ctn" />
+					<field name="cbm" />
+					<field name="weight" />
+					<field name="price_based" />
+                </xpath>
+				<xpath expr="//field[@name='line_ids']/tree/field[@name='account_id']" position="after">
+                    <field name="detail_id" string="Job Detail" invisible="1"/>
+                    <field name="article" invisible="1"/>
+					<field name="qty_per_ctn" invisible="1"/>
+					<field name="cbm" invisible="1"/>
+					<field name="weight" invisible="1"/>
+					<field name="price_based" invisible="1"/>
+                </xpath>
+				<xpath expr="//field[@name='invoice_line_ids']/tree/field[@name='quantity']" position="attributes">
+                    <attribute name="string">CTN Qty</attribute>
+                </xpath>
+				<xpath expr="//field[@name='invoice_line_ids']/tree/field[@name='price_subtotal']" position="attributes">
+                    <attribute name="readonly">0</attribute>
+                </xpath>
+
+            </field>
+        </record>
+		
+		<record id="inherit_res_partner_form" model="ir.ui.view">
+            <field name="name">inherit.res.partner.form</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="base.view_partner_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='ref']" position="replace">
+                </xpath>
+				<xpath expr="//field[@name='vat']" position="after">
+					<field name="ref" string="P. Ship Mark"/>
+					<field name="s_ship_mark" string="S. Ship Mark"/>
+                </xpath>
+            </field>
+        </record>
+		
+		<record id="inherit_product_template_form" model="ir.ui.view">
+            <field name="name">inherit.product.template.form</field>
+            <field name="model">product.template</field>
+            <field name="inherit_id" ref="product.product_template_form_view"/>
+            <field name="arch" type="xml">
+<!--				<xpath expr="//field[@name='company_id']" position="before">
+					<field name="product_owner_id"/>
+					<field name="article"/>
+					<field name="qty_per_ctn"/>
+					<field name="weight"/>
+					<field name="cbm"/>
+                </xpath>-->
+				
+				<xpath expr="//page[@name='general_information']" position="after">
+					<page string="Receipt Details" name="stock_details">
+						<field name="stock_move_ids" readonly="1">
+							<tree editable="bottom">
+								<field name="picking_partner_id"/>
+								<field name="lot_id"/>
+								<field name="reference"/>
+								<field name="article"/>
+								<field name="qty_done" string="CTN Qty"/>
+								<field name="qty_per_ctn"/>
+								<field name="weight"/>
+								<field name="cbm"/>
+								<field name="total_qty"/>
+							</tree>
+						</field>
+					</page>
+                </xpath>
+            </field>
+        </record>
+		
+		<record id="inherit_stock_picking_form" model="ir.ui.view">
+            <field name="name">inherit.stock.picking.form</field>
+            <field name="model">stock.picking</field>
+            <field name="inherit_id" ref="stock.view_picking_form"/>
+            <field name="arch" type="xml">
+				<field name="partner_id" position="after">
+            		<field name="ship_mark"/>
+					<field name="s_ship_mark"/>
+				</field>
+				<xpath expr="//field[@name='move_ids_without_package']/tree/field[@name='product_id']" position="after">
+					<field name="article"/>
+					<field name="picking_date" required="1"/>
+                </xpath>
+				
+				<xpath expr="//field[@name='move_ids_without_package']/tree/field[@name='quantity_done']" position="after">
+					<field name="qty_per_ctn"/>
+					<field name="total_qty"/>
+					<field name="weight"/>
+					<field name="cbm"/>
+					<!--<field name="lot_number"/>
+					<field name="location_id"/>
+					<field name="done_qty"/>-->
+                </xpath>
+				<xpath expr="//field[@name='move_ids_without_package']/tree/field[@name='quantity_done']" position="attributes">
+					<attribute name="string">CTN Qty</attribute>
+                </xpath>
+				
+
+
+				<xpath expr="//field[@name='move_ids_without_package']/tree/field[@name='lot_ids']" position="replace">
+					<field name="lot_ids" widget="many2many_tags" groups="stock.group_production_lot" attrs="{'invisible': ['|', ('show_details_visible', '=', False), ('has_tracking', '!=', 'serial')]}" options="{'create': [('parent.use_create_lots', '=', True)]}" context="{'default_company_id': company_id, 'default_product_id': product_id, 'active_picking_id': parent.id}" domain="[('product_id','=',product_id)]"/>
+                </xpath>
+            </field>
+        </record>
+		
+		<record id="view_stock_move_line_details_tree" model="ir.ui.view">
+            <field name="name">stock.move.line.tree.details</field>
+            <field name="model">stock.move.line</field>
+            <field name="arch" type="xml">
+                <tree>
+<!--					<field name="state" invisible="1"/>
+-->                 <field name="picking_partner_id" />
+					<field name="ship_mark" />
+					<field name="s_ship_mark" />
+                	<field name="picking_id" optional="hide"/>
+					<field name="picking_type_id" optional="hide"/>
+					<field name="picking_origin" optional="hide"/>
+					<field name="dest_location_id"/>
+					<field name="date" />
+					<field name="product_id" />
+					<field name="article" />
+					<field name="qty_done" string='CTN Qty' sum="Total CTN Qty"/>
+					<field name="qty_per_ctn" sum="Total Qty/CTN"/>
+					<field name="total_qty" sum="Total Qty"/>
+					<field name="weight" sum="Total Weight"/>
+					<field name="cbm" sum="Total CBM"/>
+					<field name="product_uom_id"/>
+<!--					<field name="lot_id" />
+-->                </tree>
+            </field>
+        </record>
+		
+		<record model="ir.actions.act_window" id="action_stock_picking_details">
+            <field name="name">Transfer Details Report</field>
+            <field name="res_model">stock.move.line</field>
+            <field name="view_mode">tree</field>
+<!--			<field name="views">["view_stock_move_details_tree","tree"]</field>
+-->        </record>
+		<record id="view_act_object_tree" model="ir.actions.act_window.view">
+	        <field name="view_mode">tree</field>
+	        <field name="view_id" ref="view_stock_move_line_details_tree" />
+	        <field name="act_window_id" ref="action_stock_picking_details" />
+    	</record>
+		
+<!--		<record id="view_account_move" model="ir.ui.view">
+            <field name="name">account.move.form</field>
+            <field name="model">account.move</field>
+            <field name="inherit_id" ref="account.view_move_form"/>
+            <field name="arch" type="xml">
+				<xpath expr="//field[@name='partner_id']" position="after">
+					<field name="ship_mark" string="P. Ship Mark"/>
+					<field name="s_ship_mark" string="S. Ship Mark"/>
+				</xpath>
+                <xpath expr="//field[@name='journal_id']" position="after">
+                    <field name="order_id" string="Job Order"/>
+                </xpath>
+                <xpath expr="//field[@name='invoice_line_ids']/tree/field[@name='analytic_tag_ids']" position="after">
+                    <field name="detail_id" string="Job Detail" invisible="1"/>
+                    <field name="article" />
+					<field name="qty_per_ctn" />
+					<field name="cbm"/>
+					<field name="weight" />
+					<field name="price_based" />
+                </xpath>
+				<xpath expr="//field[@name='invoice_line_ids']/tree/field[@name='quantity']" position="attributes">
+                    <attribute name="string">CTN Qty</attribute>
+                </xpath>
+
+            </field>
+        </record>-->
+
+		<!--<record id="inherit_stock_quant_form" model="ir.ui.view">
+            <field name="name">inherit.stock.quant.form</field>
+            <field name="model">stock.quant</field>
+            <field name="inherit_id" ref="stock.view_stock_quant_tree_editable"/>
+            <field name="arch" type="xml">
+				<xpath expr="//field[@name='company_id']" position="before">
+					<field name="available_stock"/>
+                </xpath>
+            </field>
+        </record>-->
+		
+		
+		<record id="view_job_order_line_detail_tree" model="ir.ui.view">
+            <field name="name">job.order.line.detail.tree</field>
+            <field name="model">job.order.line.detail</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="job_order_id" />
+                	<field name="partner_id" />
+					<field name="ship_mark" />
+					<field name="s_ship_mark" />
+					<field name="product_id" />
+					<field name="stock_receipt_date" />
+					<field name="lot_id" />
+					<field name="on_hand_qty" />
+					<field name="article" />
+					<field name="no_of_ctn" />
+					<field name="qty_per_ctn" />
+					<field name="uom_id" />
+					<field name="cbm" />
+					<field name="weight" />
+					<field name="price_based" />
+					<field name="price" />
+					<field name="sub_total" />
+                </tree>
+            </field>
+        </record>
+        <record id="view_job_order_line_detail_form" model="ir.ui.view">
+            <field name="name">job.order.line.detail.form</field>
+            <field name="model">job.order.line.detail</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+	                    <group>
+							<field name="job_order_id" options="{'no_quick_create': True, 'no_create_edit': True,'no_open': True}"/>
+	                    	<field name="partner_id" options="{'no_quick_create': True, 'no_create_edit': True,'no_open': True}"/>
+							<field name="product_ids" widget="many2many_tags"/>
+							<field name="product_id" options="{'no_quick_create': True, 'no_create_edit': True,'no_open': True}"/>
+							<field name="lot_id" options="{'no_quick_create': True, 'no_create_edit': True,'no_open': True}"/>
+							<field name="on_hand_qty" />
+							<field name="article" />
+							<field name="no_of_ctn" />
+							<field name="qty_per_ctn" />
+							<field name="uom_id" options="{'no_quick_create': True, 'no_create_edit': True,'no_open': True}"/>
+							<field name="cbm" />
+							<field name="weight" />
+							<field name="price_based" />
+							<field name="price" />
+							<field name="sub_total" />
+		                </group>
+					</sheet>
+                </form>
+            </field>
+        </record>
+
+		<record model="ir.actions.act_window" id="action_job_order_details">
+            <field name="name">Job Order Details</field>
+            <field name="res_model">job.order.line.detail</field>
+            <field name="view_mode">tree,form</field>
+			<!--<field name="context">{'default_type':'Job Order'}</field>
+			<field name="domain">[('type','=','Job Order')]</field>-->
+        </record>
+		<record id="view_act_job_order_tree" model="ir.actions.act_window.view">
+	        <field name="view_mode">tree</field>
+	        <field name="view_id" ref="view_job_order_line_detail_tree" />
+	        <field name="act_window_id" ref="action_job_order_details" />
+	    </record>
+		<!--<record id="view_packing_list_detail_tree" model="ir.ui.view">
+            <field name="name">job.order.line.detail.tree</field>
+            <field name="model">job.order.line.detail</field>
+            <field name="arch" type="xml">
+                <tree>
+					<field name="type"/>
+                    <field name="job_order_id" />
+                	<field name="partner_id" />
+					<field name="ship_mark" />
+					<field name="s_ship_mark" />
+					<field name="product_id" />
+					<field name="stock_receipt_date" />
+					<field name="lot_id" />
+					<field name="on_hand_qty" />
+					<field name="article" />
+					<field name="no_of_ctn" />
+					<field name="qty_per_ctn" />
+					<field name="uom_id" />
+					<field name="cbm" />
+					<field name="weight" />
+					<field name="price_based" />
+					<field name="price" />
+					<field name="sub_total" />
+                </tree>
+            </field>
+        </record>
+        <record id="view_packing_list_details_form" model="ir.ui.view">
+            <field name="name">job.order.line.detail.form</field>
+            <field name="model">job.order.line.detail</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+	                    <group>
+							<field name="type"/>
+							<field name="job_order_id" options="{'no_quick_create': True, 'no_create_edit': True,'no_open': True}"/>
+	                    	<field name="partner_id" options="{'no_quick_create': True, 'no_create_edit': True,'no_open': True}"/>
+							<field name="product_ids" widget="many2many_tags"/>
+							<field name="product_id" options="{'no_quick_create': True, 'no_create_edit': True,'no_open': True}"/>
+							<field name="lot_id" options="{'no_quick_create': True, 'no_create_edit': True,'no_open': True}"/>
+							<field name="on_hand_qty" />
+							<field name="article" />
+							<field name="no_of_ctn" />
+							<field name="qty_per_ctn" />
+							<field name="uom_id" options="{'no_quick_create': True, 'no_create_edit': True,'no_open': True}"/>
+							<field name="cbm" />
+							<field name="weight" />
+							<field name="price_based" />
+							<field name="price" />
+							<field name="sub_total" />
+		                </group>
+					</sheet>
+                </form>
+            </field>
+        </record>
+
+
+		<record model="ir.actions.act_window" id="action_packing_list_details">
+            <field name="name">Packing List Details</field>
+            <field name="res_model">job.order.line.detail</field>
+            <field name="view_mode">tree,form</field>
+			<field name="context">{'default_type':'Packing List'}</field>
+			<field name="domain">[('type','=','Packing List')]</field>
+        </record>
+		<record id="view_act_packing_list_tree" model="ir.actions.act_window.view">
+	        <field name="view_mode">tree</field>
+	        <field name="view_id" ref="view_packing_list_detail_tree" />
+	        <field name="act_window_id" ref="action_packing_list_details" />
+	    </record>-->
+
+		<menuitem id="menu_job_order_main" name="Job Order" sequence="25"/>
+		<menuitem id="menu_job_order" parent="menu_job_order_main" name="Job Order" sequence="5"/>
+		<menuitem id="sub_menu_job_order" parent="menu_job_order" action="action_job_order" name="Job Order" sequence="5"/>
+		<menuitem id="menu_job_order_details" parent="menu_job_order" action="action_job_order_details" name="Job Order Details" sequence="10"/>
+		
+		<!--<menuitem id="menu_packing_list_main" parent="menu_job_order_main" name="Packing List" sequence="10"/>
+		<menuitem id="menu_packing_list" parent="menu_packing_list_main" action="action_packing_list" name="Packing List" sequence="5"/>
+		<menuitem id="menu_packing_list_details" parent="menu_packing_list_main" action="action_packing_list_details" name="Packing List Details" sequence="10"/>-->
+
+
+		
+    </data>
+</odoo>

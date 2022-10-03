@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+	<record id="view_stock_detail_report_tree" model="ir.ui.view">
+            <field name="name">stock.detail.report.tree</field>
+            <field name="model">stock.detail.report</field>
+            <field eval="6" name="priority"/>
+            <field name="arch" type="xml">
+                <tree string="Stock Detail Report">
+					<field name="picking_partner_id" />
+					<field name="ship_mark" />
+					<field name="s_ship_mark" />
+                	<field name="picking_id" optional="hide"/>
+					<field name="picking_type_id" optional="hide"/>
+					<field name="picking_origin" optional="hide"/>
+					<field name="dest_location_id"/>
+					<field name="date" />
+					<field name="product_id" />
+					<field name="article" />
+					<field name="qty_done" string='CTN Qty' sum="Total CTN Qty"/>
+					<field name="qty_per_ctn" sum="Total Qty/CTN"/>
+					<field name="total_qty" sum="Total Qty"/>
+					<field name="qty_on_hand" />
+					<field name="weight" sum="Total Weight"/>
+					<field name="cbm" sum="Total CBM"/>
+					<field name="product_uom_id"/>
+					<field name="lot_id" />
+                </tree>
+            </field>
+    </record>
+
+	
+	<!--<record id="view_stock_detail_report_pivot" model="ir.ui.view">
+         <field name="name">stock.detail.report.pivot</field>
+         <field name="model">stock.detail.report</field>
+         <field name="arch" type="xml">
+             <pivot string="Stock Detail Report" disable_linking="True">
+                <field name="year" type="row"/>
+				<field name="month_number" type="row"/>
+				<field name="name" type="row"/>
+				<field name="balance" type="measure"/>
+                
+             </pivot>
+         </field>
+    </record>
+
+    <record id="view_stock_detail_report_graph" model="ir.ui.view">
+         <field name="name">stock.detail.report.graph</field>
+         <field name="model">stock.detail.report</field>
+         <field name="arch" type="xml">
+             <graph string="Stock Detail Report" type="bar">
+				 <field name="year" type="row"/>
+				 <field name="month_number" type="row"/>
+				 <field name="name" type="row"/>
+                 <field name="balance" type="measure"/>
+             </graph>
+         </field>
+    </record>-->
+	
+	<record id="view_stock_detail_report_search" model="ir.ui.view">
+        <field name="name">stock.detail.report.search</field>
+        <field name="model">stock.detail.report</field>
+        <field name="arch" type="xml">
+            <search string="Stock Detail Report">
+				<field name="picking_partner_id" />
+				<field name="ship_mark" />
+				<field name="s_ship_mark" />
+            	<field name="picking_id" optional="hide"/>
+				<field name="picking_type_id" optional="hide"/>
+				<field name="picking_origin" optional="hide"/>
+				<field name="dest_location_id"/>
+				<field name="date" />
+				<field name="product_id" />
+				<field name="article" />
+				<field name="qty_done" string='CTN Qty' sum="Total CTN Qty"/>
+				<field name="qty_per_ctn" sum="Total Qty/CTN"/>
+				<field name="total_qty" sum="Total Qty"/>
+				<field name="weight" sum="Total Weight"/>
+				<field name="cbm" sum="Total CBM"/>
+				<field name="product_uom_id"/>
+				<field name="lot_id" />
+                <group expand="1" string="Group By">
+					<filter string="Partner" name="picking_partner_id" context="{'group_by':'picking_partner_id'}"/>
+					<filter string="P. Ship Mark" name="ship_mark" context="{'group_by':'ship_mark'}"/>
+					<filter string="S. Ship Mark" name="s_ship_mark" context="{'group_by':'s_ship_mark'}"/>
+                    <filter string="Transfer" name="picking_id" context="{'group_by':'picking_id'}"/>
+					<filter string="Operation Type" name="picking_type_id" context="{'group_by':'picking_type_id'}"/>
+					<filter string="Product" name="product_id" context="{'group_by':'product_id'}"/>
+					<filter string="Article" name="article" context="{'group_by':'article'}"/>
+					<filter string="Lot/Serial Number" name="lot_id" context="{'group_by':'lot_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+	<record id="stock_detail_report_action" model="ir.actions.act_window">
+		<field name="name">Stock Detail Report</field>
+		<field name="type">ir.actions.act_window</field>
+		<field name="res_model">stock.detail.report</field>
+		<field name="view_mode">tree</field>
+        <field name="view_id"></field>  <!-- force empty -->
+	</record>
+		
+	<menuitem id="menu_picking_details" parent="stock.menu_warehouse_report" action="stock_detail_report_action" name="Transfer Details Report" sequence="10"/>
+
+</odoo>
