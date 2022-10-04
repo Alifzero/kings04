@@ -11,21 +11,25 @@
                        position="after">
                     <!--					<field name="qty_done"/>-->
                     <!--					<field name="lot_id"/>-->
-                    <field name="lot_name_sm"
-                           attrs="{'readonly': [('id', '!=', False)]}"
+                    <field name="lot_name_sm" required="1"/>
+<!--                           attrs="{'readonly': [('id', '!=', False)]}"-->
+<!--                    />-->
+                    <field name="done_qty_sm" required="1"
+
                     />
-                    <field name="done_qty_sm"
-                           attrs="{'readonly': [('id', '!=', False)]}"
+                    <button name="qty_Done" string="Confirm" type="object"
+                    attrs="{'invisible': [('state', '=', 'done')]}"
                     />
+
                 </xpath>
 
-<!--                <xpath expr="//field[@name='action_show_details']" position="attributes">-->
+<!--                <xpath expr="//button[@name='action_show_details']" position="attributes">-->
 <!--                    <attribute name="invisible">1</attribute>-->
 <!--                </xpath>-->
-                <!--                                <xpath expr="//field[@name='location_dest_id']" position="after">-->
+<!--                <xpath expr="//field[@name='location_dest_id']" position="after">-->
 
-                <!--                                    <button name="QtyDoneCustom" string="Conform" type="object" />-->
-                <!--                                </xpath>-->
+<!--                    <button name="changeStage" string="Draft" type="object"/>-->
+<!--                </xpath>-->
 
             </field>
 
